@@ -1,0 +1,83 @@
+import  { useState, useEffect  } from 'react';
+import {  loadModules  } from '@esri/react-arcgis';
+
+const MyFeatureLayer = (props) => {
+    const [myFeatureLayer, setMyFeatureLayer,] = useState(null);
+    useEffect(() => {
+        loadModules(['esri/geometry/Point','esri/layers/GraphicsLayer', "esri/Graphic",
+        "esri/symbols/SimpleMarkerSymbol"
+         ])
+          .then(([Point,GraphicLayer,Graphic,SimpleMarkerSymbol  ]) => {
+            const myFeatureLayer = new GraphicLayer({
+
+            });
+            let rmark = new SimpleMarkerSymbol({
+              color:   [255, 0, 0, 0.8] ,
+              size: "8px",
+              outline: {
+                color: [ 255, 255, 255 ],
+                width: 1
+              }
+            });
+            let bmark = new SimpleMarkerSymbol({
+              color: [0, 0, 255, 0.8],
+              size: "8px",
+              outline: {
+                color: [ 255, 255, 255 ],
+                width: 1
+              }
+            });
+            let opts = {
+                duration: 200
+            };
+            let current = null
+            for(var t =0; t < props.data.length; t++)
+            {
+              let d = props.data[t]
+              if(d.lat != -1 && d.lon != -1)
+              {
+                  let p = Point({latitude:d.lat,longitude:d.lon,spatialReference:{wkid: 3857}} )
+                  // Create a symbol for drawing the point
+                  let markerSymbol = new SimpleMarkerSymbol({
+                    color: props.curr== t? [255, 0, 0, 0.8]:[0, 0, 255, 0.8],
+                    size: "8px",
+                    outline: {
+                      color: [ 255, 255, 255 ],
+                      width: 1
+                    }
+                  });
+
+                  // Create a graphic and add the geometry and symbol to it
+                  let pointGraphic = new Graphic({
+                    geometry: p,
+                    symbol:  props.curr== t ? rmark : bmark
+                  });
+                  if( props.curr== t) current = pointGraphic
+
+                  myFeatureLayer.add(pointGraphic)
+              }
+
+            }
+
+            setMyFeatureLayer(myFeatureLayer);
+            props.map.add(myFeatureLayer);
+            if(current != null){
+
+                props.view.goTo({target: current, zoom: 17 }, opts);
+
+
+            }
+
+
+
+        }).catch((err) => console.error(err));
+
+        return function cleanup() {
+            props.map.remove(myFeatureLayer);
+        }
+    }, [ props ]);
+
+    return null;
+}
+export default MyFeatureLayer;
+ 

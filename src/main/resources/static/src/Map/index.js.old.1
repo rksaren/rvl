@@ -1,0 +1,61 @@
+import React, { PureComponent   } from 'react';
+import settings from "../settings";
+import $ from 'jquery';
+import Layer from "./layer";
+import { Map  } from '@esri/react-arcgis';
+
+
+
+class RoarMap extends PureComponent {
+
+    constructor(props) {
+        super(props);
+        /*this.state = {
+            curr:this.props.curr,
+            data:this.props.data
+         };*/
+        this.eventbus = this.props.eventbus;
+    }
+
+    componentDidMount() {
+      let self = this
+
+    }
+
+    handleMapLoad(map, view) {
+         this.view = view
+         this.map = map
+    }
+    render() {
+      const width = document.body.clientWidth - 700
+        return (
+                <div style={{height:"400px",width:width+"px",float:"left" } }>
+                    <Map mapProperties={{ basemap: 'satellite' }} onLoad={this.handleMapLoad.bind(this)}
+                    viewProperties={{
+                      center: [-70, 25],
+                      zoom: 4
+                    }}
+                     >
+                     <Layer curr={this.props.curr} data={this.props.data}  >
+                      </Layer>
+                     </Map>
+                     <div id="topbar">
+                          <button
+                            className="action-button esri-icon-minus"
+                            id="distanceButton"
+                            type="button"
+                            title="Measure distance between two or more points"></button>
+                          <button
+                            className="action-button esri-icon-polygon"
+                            id="areaButton"
+                            type="button"
+                            title="Measure area"></button>
+                        </div>
+                    </div>
+        )
+    }
+
+}
+
+export default RoarMap;
+

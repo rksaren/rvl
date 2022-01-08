@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+<springProperty scope="context" name="logging_file" source="logging.file"/>
+<property name="pattern" value="%d{yyyy.MMM.dd HH:mm:ss.SSS} [ProgramName] %level - %msg%n" />
+
+<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${logging_file}</file>
+    <append>true</append>
+    <encoder>
+        <pattern>${pattern}</pattern>
+    </encoder>
+    
+     <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+         <fileNamePattern>${logging_file}.%d{yyyy-MM-dd}.%i.archieved</fileNamePattern>
+         <!-- each archived file, size max 10MB -->
+         <maxFileSize>1MB</maxFileSize>
+         <!-- total size of all archive files, if total size > 20GB, 
+	it will delete old archived file -->
+         <totalSizeCap>1GB</totalSizeCap>
+         <!-- 60 days to keep  -->
+         <maxHistory>365</maxHistory>
+     </rollingPolicy>
+</appender>
+
+<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <target>System.out</target>
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+        <level>INFO</level>
+    </filter>
+    <encoder>
+        <pattern>${pattern}</pattern>
+    </encoder>
+</appender>
+
+<root level="debug">
+    <appender-ref ref="FILE" />
+    <appender-ref ref="STDOUT" />
+</root>
+
+</configuration>
