@@ -1,5 +1,6 @@
 package com.delasoft.dvl.services.impl;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import com.delasoft.dvl.db.entities.Appdataset;
 import com.delasoft.dvl.db.entities.Appsql;
 import com.delasoft.dvl.db.entities.Dvldataset;
 import com.delasoft.dvl.models.DvldatasetModel;
+import com.delasoft.dvl.models.Location;
 import com.delasoft.dvl.models.Roads;
 import com.delasoft.dvl.services.DvlDataService;
 
@@ -99,6 +101,42 @@ public class DvlDataServiceImpl implements DvlDataService {
 		sqlquery=sqlquery.replace("tblName", ads.getDatasetname()).replace("searchkey", search.toLowerCase()); 
 		 	
 		return dvlDataSetDao.getRoads(sqlquery);
+	}
+
+
+	@Override
+	public List<Roads> getRoads(Location loc)
+	{
+		String year= "curYear";
+		Map<String, Appdataset> result =getAppDataSet();
+		Appdataset ads=result.get(year); 
+		String sqlname = "locatorPts";
+		Appsql sqlEntity=getSqlByName(sqlname);
+		String sqlquery=sqlEntity.getSqlstmt(); 
+		sqlquery=sqlquery.replace("tblName", ads.getDatasetname());
+		
+		return dvlDataSetDao.getRoads(sqlquery, loc);
+	}
+
+
+	@Override
+	public Roads getRoad(Integer rdway_id,BigDecimal mile) {
+		String year= "curYear";
+		Map<String, Appdataset> result =getAppDataSet();
+		Appdataset ads=result.get(year); 
+		String sqlname = "getRoad";
+		Appsql sqlEntity=getSqlByName(sqlname);
+		String sqlquery=sqlEntity.getSqlstmt(); 
+		sqlquery=sqlquery.replace("tblName", ads.getDatasetname());
+		Roads q = dvlDataSetDao.getRoad(sqlquery,mile, rdway_id); 
+		if(q == null)
+		{
+			q = new Roads();
+			q.setBegmp(null);
+			q.setRdway_id(null);
+			q.setRoadno("No Road Found");
+		}
+		return q;
 	}
 
 }

@@ -21,7 +21,7 @@ class ImageViewer extends PureComponent{
   
   render (){
   
-    return (  <div  ref={this.container} className={"col-"+ this.props.sm} > </div>   )
+    return (  <div  ref={this.container} className={"col "+ this.props.sm} > </div>   )
   }
  componentDidMount() {
    this.width = this.container.current.clientWidth;
@@ -34,7 +34,7 @@ class ImageViewer extends PureComponent{
    let svg = d3.select(this.container.current)
         .append("svg")
         .attr("width",width)
-        .attr("height",height);
+        .attr("height",this.props.height);
 
    let zoomed = ()=> {
           const currentTransform = d3.event.transform;
@@ -59,15 +59,25 @@ class ImageViewer extends PureComponent{
       .attr("height", height)
       .style("fill", "none")
       .style("pointer-events", "all");
-    let adjust = this.props.adjust;
-    adjust = adjust.split(":");
+   
     let container = svg.append("g")
-      .attr("transform", "translate(" + adjust[0] + "," + adjust[1] + ")"); 
+    if(this.props.adjust != null)
+    {
+    	 let adjust = this.props.adjust;
+    	    adjust = adjust.split(":");
+    	container .attr("transform", "translate(" + adjust[0] + "," + adjust[1] + ")"); 
+    }	
+     
     
     
     container.append("image")
     .attr("width",  width + "px")
-    .attr("height", height + "px")
+    .attr("height", this.props.height + "px")
+    .attr("viewBox", (d,i)=>{
+					
+		return [0, 0, width, this.props.height]
+	})
+	.attr( "preserveAspectRatio","none")
     .attr("xlink:href",  this.props.src.path);
 
 
@@ -76,7 +86,7 @@ class ImageViewer extends PureComponent{
 ImageViewer.propTypes = {
   changeState: PropTypes.func,
   src:PropTypes.object,
-  height:PropTypes.string
+  height:PropTypes.number
 };
 
 

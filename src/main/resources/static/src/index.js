@@ -28,7 +28,8 @@ ReactDOM.render(
 			<Header />
 			 
 			<Route exact path="/" render={() => (<Redirect to="/Roads" />)} />
-			<Route  path={"/Roads/:id"} component={ Road} />
+			
+			<Route  path={"/Roads/:id/:mile?"} component={ Road} />
 			<Route exact path={"/Roads"} component={Road}/>
 			<Route exact path={"/Admin"} component={Admin} />
 			<Route exact path={"/Query"} component={Query} />

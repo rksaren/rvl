@@ -73,6 +73,67 @@ html, body, .app { height: 100%;width: 100%;margin: 0; padding: 0; font-family: 
     line-height: 0px;
 
 }
+.app  .control_menu {
+    position: fixed;
+    top:-15px;
+	background-color: #F9F9F9;
+    box-shadow: none;
+    left:20%;
+    transition: all .75s ease;
+}
+.app  .control_menu > .menu_box {
+    height: 50px;
+    width: 50px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 0px;
+    padding-right: 0px;
+    border-bottom: 1px solid #C2C2C2;
+    font-size:20px;
+    color: #666666;
+    cursor:pointer;
+    float: left;
+}
+.app  .control_menu > .menu_box:hover
+{
+    color:#2557b4;
+}
+
+.app  .control_menu > .menu_box>.valign
+{
+    vertical-align: middle;
+    text-align: center;
+    display: table-cell;
+    height: inherit;
+    width: inherit;
+}
+.app  .control_menu > .menu_box a {
+    color: #666666;
+}
+.app  .control_menu > .menu_box a:hover {
+    color: #2557b4;
+}
+.app  .control_menu.inner{  z-index: 50;top:0px;}
+.app .control_menu.inner > .roadinfo 
+{ 
+	float:left;
+	
+}
+.app .control_menu.inner > .roadinfo  > span
+{
+    padding: 10px 0px;
+    font-size: 18px;
+  	color:#666666;  
+
+}
+.app .control_menu.inner > .roadinfo   > input
+{
+    width:50px;
+	margin-bottom: -5px;
+	margin-left:10px;
+}
+ 
+
 .app  .left_menu {
     position: fixed;
 
@@ -113,13 +174,7 @@ html, body, .app { height: 100%;width: 100%;margin: 0; padding: 0; font-family: 
 {
     color:#2557b4;
 }
-.app  .left_menu > .menu_box > .top_menu {
-    color:#2557b4;
-    position:absolute;
-    top:13px;
-    left:13px;
 
-}
 .app  .left_menu > .menu_box>.valign
 {
     vertical-align: middle;
@@ -399,20 +454,13 @@ html, body, .app { height: 100%;width: 100%;margin: 0; padding: 0; font-family: 
 .app .esri-area-measurement-3d__actions { display: none;}
 .app .app_content .roadnum {
   position: fixed;
-  left: 200px;
+  left: 12%;
   top: 15px;
   z-index: 50;
   font-size: 18px;
   color: #666666;
 }
-.app .app_content .roadinfo {
-  position: fixed;
-  left: 40%;
-  top: 15px;
-  z-index: 50;
-  font-size: 18px;
-  color:#666666;
-}
+
 .app .app_content .roadexport {
     font-size: 20px;
     top: 18px;
@@ -516,3 +564,4 @@ html, body, .app { height: 100%;width: 100%;margin: 0; padding: 0; font-family: 
     height: .5em;
     animation: k-loading-animation reverse 1.4s linear infinite;
 }
+.inner button:focus { background-color: unset; }

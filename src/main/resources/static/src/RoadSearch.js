@@ -7,7 +7,7 @@ class RoadSearch extends React.PureComponent {
 	constructor(props){
      super(props) 
 	 this. init = { method: 'GET', accept: 'application/json', headers: {} };
-	 this.state = { data: [], value: '', loading: false,"opened":false,valueid:null };
+	 this.state = { data: [], value: '', loading: false,"opened":false,valueid:null, mile:null };
  }
  
   
@@ -31,9 +31,9 @@ class RoadSearch extends React.PureComponent {
         if (valueSelected && found )
     	{
         	 
-        	this.setState({value:value,loading:false,opened:false,valueid:found.rdway_id},
+        	this.setState({value:value,loading:false,opened:false,valueid:found.rdway_id,mile:found.begmp },
         		()=>{
-        			this.props.setRoad(this.state.valueid)
+        			this.props.setRoad(this.state.valueid,this.state.mile)
         	})
            
         }

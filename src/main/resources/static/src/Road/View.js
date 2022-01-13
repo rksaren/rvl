@@ -1,14 +1,14 @@
 import React, { Fragment, PureComponent } from "react";
 import ImageViewer from "../ImageViewer";
 import Slider from "../Slider";
- 
+ import VideoControl from './VideoControl';
 import PropTypes from "prop-types";
 import settings from "../settings"
 import update from "immutability-helper"
 import $ from "jquery";
 import SideBar from "../SideBar"
 import { withRouter,Link } from 'react-router-dom';
- 
+import CompareRoadView from "./CompareRoad"
 import * as d3 from "d3";
 import { Provider, withBus } from 'react-bus'
 import Map from "../Map"
@@ -20,7 +20,7 @@ class RoadView extends PureComponent {
 
     super(props)
     this.state = {
-      isLoading: true,playing:false, curr:0,items:null
+      isLoading: true,playing:false, curr:0,items:null,compareview:0,rearview:0,compareyear:null
     }
      
   }
@@ -36,12 +36,26 @@ class RoadView extends PureComponent {
       </div>)
 
     }
-    
+    else if(this.state.roadno == "No Road Found")
+    {
+    	return (  
+			<React.Fragment>
+	          
+	           
+
+	          <div className={"row"}>
+	              <div className="col s2 offset-s10"></div>
+
+	          </div>
+	        <div className="noresults">No Road found..</div>
+	        </React.Fragment>
+    	)
+    }	
     else if (this.state.items == null || this.state.items.length == 0) {
       return (
         <React.Fragment>
-          <Link to={"/Roads"}><span className={"back"}  >Back</span></Link>
-          <span className="roadnum" >Road #{this.props.param.id}</span>
+           
+          <span className="roadnum"> {this.state.roadno}</span>
 
           <div className={"row"}>
               <div className="col s2 offset-s10"></div>
@@ -51,17 +65,20 @@ class RoadView extends PureComponent {
         </React.Fragment>
       )
     }
-     
+   
     return (
       <React.Fragment>
-        <Link to={"/Roads"}> <span className={"back"}  >Back</span></Link>
-        <SideBar  playing={this.state.playing}  play={this.autoPlay.bind(this)}  next={this.next.bind(this)} prev={this.prev.bind(this)}/>
-
-        <span className="roadnum" >Road #{this.props.param.id}</span>
-       
-
-      
-        <span className="roadinfo" >Milepoint &nbsp; &nbsp;{ this.state.items[this.state.curr]} </span>
+         
+        <SideBar compareview={this.state.compareview} rearview={this.state.rearview} compareyear={this.state.compareyear} changeCompareview={this.changeCompareview.bind(this)}
+        	changeRearview={this.changeRearview.bind(this)}
+        />
+        <VideoControl playing={this.state.playing}  play={this.autoPlay.bind(this)}  
+        	next={this.next.bind(this)} prev={this.prev.bind(this)}
+        	mile={this.state.items[this.state.curr]}
+        	gotoMile={this.gotoMile.bind(this)}
+        >  
+        </VideoControl>
+        <span className="roadnum"> {this.state.roadno}</span>       
 
         <div className={"row nopadding"} >
           {this.getImageViewer()}
@@ -72,6 +89,12 @@ class RoadView extends PureComponent {
             <Slider curr={this.state.curr} changeState={this.slide.bind(this)} param={this.getSlideParam()}/>
           </div>) : (<Fragment></Fragment>)
           
+        }
+        {
+        	this.state.compareview != 0 && 
+        	(
+        			<CompareRoadView rearview={this.state.rearview} year={this.state.compareyear } roadway_id={this.props.param.id} curr={this.state.curr}  />
+        	)
         }
          <div className={"row nopadding"} >
            <div className="col s12">
@@ -94,7 +117,16 @@ class RoadView extends PureComponent {
 
     return (  <Map data={data} curr={this.state.curr}  ></Map>)
   }
-    
+ 
+  changeCompareview(year)
+  {
+	  this.setState(update(this.state,{compareview:{$set:year != null ? 1 : 0  },compareyear:{$set:year}  }))
+  }
+  
+  changeRearview()
+  {
+	  this.setState(update(this.state,{rearview:{$set: this.state.rearview == 0 ? 1 : 0 }})) 
+  }
   next(){
     let idx = this.state.curr
     if(idx + 1 < this.state.items.length){
@@ -126,7 +158,11 @@ class RoadView extends PureComponent {
   
   gotoMile(event){ 
      let item = event.dataItem
-     let newcurr =  this.state.items.indexOf(item.mile)
+     let mile = item.mile
+     if(isNaN(mile)) return
+     mile = Number(mile)
+     let newcurr =  this.state.items.indexOf(mile)
+     if(newcurr < 0) return  
      let newstate = update(this.state,{curr: {$set: newcurr}})
      this.setState(newstate)
   }
@@ -165,18 +201,29 @@ class RoadView extends PureComponent {
     let self = this
     let milepoint = this.state.items[this.state.curr]
     let entry = this.state.mappings[milepoint];
-    console.log(entry.images);
-    let sm = 12/entry.images.length;
-    return entry.images.map( (im) => {
-
+    let images = entry.images
+    let sm = null
+	if(this.state.rearview == 1)
+	{
+		sm = 9/(entry.images.length-1)
+	}
+	else
+	{
+		images = images.filter((x)=>{ return x.dir  != "B" })
+		sm = 12/images.length
+		
+	}
+	
+    return images.map( (im) => {
+    	   	 
          
         return (<ImageViewer adjust={this.state[im.adjust]}  
-        		key={im.id} 
+        		key={im.id+"_"+this.state.rearview} 
         		adjustImage={this.adjustImage.bind(this)}
-           		height={"400px"} src={im} dir= {im.dir}
+           		height={400} src={im} dir= {im.dir}
         		originalwidth = {this.metadata.originalwidth}
         		originalheight = {this.metadata.originalheight}
-        		sm = {"sm-"+sm}
+        		sm = {"s"+(im.dir == "B" ? "3": sm)}
         />)
     })
 
@@ -200,14 +247,37 @@ class RoadView extends PureComponent {
       let value = transform.x+":"+transform.y;
       if(dir == "L") property="leftImageAdj";
       else if(dir == "M") property="centerImageAdj";
-      else property="rightImageAdj";
-      let newstate  = {}
-      newstate[property] = value
-      this.setState(newstate)
+      else if(dir == "R") property="rightImageAdj";
+      if(property != "")
+      {
+    	  let newstate  = {}
+          newstate[property] = value
+          this.setState(newstate)
+      }	  
+     
 
   }
-  loadData(){
+  loadRoad()
+  {
+	  
+	  
+	  
+	  $.ajax({
+	      url: settings.baseurl + "/rest/services/getroad?rdway_id=" + this.props.param.id+"&mile="+this.props.param.mile  , type: "GET"
+	    }).done((road)=>{
+	    	 
+	    	this.loadData(road.roadno,road.begmp)
+	    })
+  }
+  loadData(roadno,mile)
+  {
+	if(roadno == "No Road Found")
+	{
+		this.setState(update(this.state, {roadno:{$set:roadno},isLoading:{$set: false}}));
+		return;
+	}	
     let id = this.props.param.id
+    
     let self = this
 
     $.ajax({
@@ -244,7 +314,11 @@ class RoadView extends PureComponent {
             	  mimages.push({dir:"R",id:entry.id+"R",path:this.metadata.orgimagehost+entry.frontRightImageLink
                       ,adjust:"rightImageAdj"})
               }
-
+              if(entry.rearImageLink)
+              {
+            	  mimages.push({dir:"B",id:entry.id+"B",path:this.metadata.orgimagehost+entry.rearImageLink
+                      ,adjust:null})
+              }	  
               let obj =  { id: entry.id,images:mimages,position:{lat:entry.latitude,lon:entry.longitude}};
               total[entry.milepoint] = obj;
               
@@ -254,15 +328,15 @@ class RoadView extends PureComponent {
           ,{});
             
          
-
-            self.setState({isLoading:false,curr:0,items:items,mappings:mappings,leftImageAdj:self.metadata.leftImageAdj,
+            let curr = items.indexOf(mile)
+            self.setState({roadno:roadno,isLoading:false,curr:curr,items:items,mappings:mappings,leftImageAdj:self.metadata.leftImageAdj,
               centerImageAdj:self.metadata.centerImageAdj,rightImageAdj:self.metadata.rightImageAdj,noOfImages:self.noOfImages})
         
     })
   }
   componentDidMount() {
      
-    this.loadData()
+    this.loadRoad()
 
   }
    

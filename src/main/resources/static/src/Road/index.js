@@ -19,7 +19,9 @@ class Workspace extends PureComponent{
   getComponent (){
     let component = null;
     let id = this.props.match.params.id
+    let mile = this.props.match.params.mile
     let param =  typeof id == "undefined" ? {} :{id:id}
+    param.mile = typeof mile != "undefined" ? mile : -1
     switch (this.state.currentComponent){
       case 'List' :
         component = <List changeState={this.changeState.bind(this)} param={param}/>;

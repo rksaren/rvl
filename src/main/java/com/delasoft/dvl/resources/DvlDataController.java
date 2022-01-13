@@ -1,5 +1,6 @@
 package com.delasoft.dvl.resources;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.delasoft.dvl.db.entities.Appdataset;
 import com.delasoft.dvl.db.entities.Appsql;
 import com.delasoft.dvl.models.DvldatasetModel;
+import com.delasoft.dvl.models.Location;
 import com.delasoft.dvl.models.Roads;
 import com.delasoft.dvl.services.DvlDataService;
 
@@ -91,5 +93,15 @@ public class DvlDataController {
 		
 		return  dvlDataService.getRoads(search); 
 	}
-	
+	@RequestMapping(value = "/getroad", method = RequestMethod.GET, produces = "application/json")
+	public @ResponseBody Roads getRoad(@RequestParam Integer rdway_id,@RequestParam BigDecimal mile){
+		
+		return  dvlDataService.getRoad(rdway_id,mile); 
+	}
+	@RequestMapping(value = "/locatepoint", method = RequestMethod.GET, produces = "application/json")
+	public @ResponseBody List<Roads> getLocation( Location loc){
+		
+		return  dvlDataService.getRoads(loc);
+		
+	}
 }
